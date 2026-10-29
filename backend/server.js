@@ -199,20 +199,33 @@ router.post('/login', (req, res) => {
 app.use('/api/auth', router);
 registerApp.use('/api/auth', router);
 
+// Anti-caching middleware so browsers and CDNs never serve stale 304 cached files
+const noCacheMiddleware = (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
+  next();
+};
+
+app.use(noCacheMiddleware);
+registerApp.use(noCacheMiddleware);
+
 // Smart Subdomain Routing (for Render / custom domains like register.yourdomain.com)
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
   if (host.startsWith('register.') || host.startsWith('reg.')) {
-    return express.static(REGISTER_SITE_DIR)(req, res, next);
+    return express.static(REGISTER_SITE_DIR, { etag: false })(req, res, next);
   }
   next();
 });
 
 // Serve static frontend files
-app.use('/register', express.static(REGISTER_SITE_DIR));
-app.use('/registration', express.static(REGISTER_SITE_DIR));
-app.use(express.static(MAIN_SITE_DIR));
-registerApp.use(express.static(REGISTER_SITE_DIR));
+const staticOpts = { etag: false, lastModified: false };
+app.use('/register', express.static(REGISTER_SITE_DIR, staticOpts));
+app.use('/registration', express.static(REGISTER_SITE_DIR, staticOpts));
+app.use(express.static(MAIN_SITE_DIR, staticOpts));
+registerApp.use(express.static(REGISTER_SITE_DIR, staticOpts));
 
 // Start servers
 const mainServer = app.listen(PORT_MAIN, () => {

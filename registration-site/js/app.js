@@ -46,8 +46,16 @@
 
   // ---------------- UI HELPERS ----------------
   function showStep(stepElement) {
-    [stepRegister, stepOtp, stepSuccess].forEach(el => el.classList.remove('active'));
-    stepElement.classList.add('active');
+    [stepRegister, stepOtp, stepSuccess].forEach(el => {
+      if (el) {
+        el.classList.remove('active');
+        el.style.display = 'none';
+      }
+    });
+    if (stepElement) {
+      stepElement.classList.add('active');
+      stepElement.style.display = 'block';
+    }
   }
 
   function showMessage(el, text, type = 'error') {
@@ -158,6 +166,11 @@
     } finally {
       setButtonLoading(submitRegisterBtn, false, 'Send OTP Code');
     }
+  });
+
+  submitRegisterBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    regForm.dispatchEvent(new Event('submit', { cancelable: true }));
   });
 
   // ---------------- STEP 2: OTP INPUT HANDLING ----------------
