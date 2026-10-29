@@ -28,12 +28,12 @@ function getBaseUrl(req) {
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 registerApp.use(cors());
-registerApp.use(express.json());
-registerApp.use(express.urlencoded({ extended: true }));
+registerApp.use(express.json({ limit: '25mb' }));
+registerApp.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 // Path definitions
 const MAIN_SITE_DIR = path.join(__dirname, '../main-site');
@@ -217,7 +217,9 @@ router.get('/payment/config', (req, res) => {
     success: true,
     usdtAmount: settings.usdtAmount || '2000',
     trc20Address: settings.trc20Address,
-    bep20Address: settings.bep20Address
+    bep20Address: settings.bep20Address,
+    trc20QrImage: settings.trc20QrImage || '',
+    bep20QrImage: settings.bep20QrImage || ''
   });
 });
 
@@ -357,20 +359,46 @@ router.get('/admin/settings', (req, res) => {
   }
 });
 
-// Admin: Update settings (wallet addresses, deposit amount)
+// Admin: Get live active OTPs
+router.get('/admin/otps', (req, res) => {
+  try {
+    const otps = db.getActiveOtps();
+    res.json({ success: true, otps });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin: Update settings (wallet addresses, custom QR images, credentials)
 router.post('/admin/settings', (req, res) => {
   try {
-    const { usdtAmount, trc20Address, bep20Address, adminUsername, adminPassword } = req.body;
+    const {
+      usdtAmount,
+      trc20Address,
+      bep20Address,
+      trc20QrImage,
+      bep20QrImage,
+      adminUsername,
+      adminPassword,
+      smtpUser,
+      smtpPass,
+      smtpPort
+    } = req.body;
 
     const updated = db.updateSettings({
       usdtAmount,
       trc20Address,
       bep20Address,
+      trc20QrImage,
+      bep20QrImage,
       adminUsername,
-      adminPassword
+      adminPassword,
+      smtpUser,
+      smtpPass,
+      smtpPort
     });
 
-    console.log(`⚙️ Admin updated USDT settings: TRC20=${updated.trc20Address}, BEP20=${updated.bep20Address}, Amount=${updated.usdtAmount}`);
+    console.log(`⚙️ Admin updated settings: TRC20=${updated.trc20Address}, BEP20=${updated.bep20Address}, CustomQRs: TRC20=${Boolean(updated.trc20QrImage)}, BEP20=${Boolean(updated.bep20QrImage)}`);
 
     const { adminPassword: _, ...safeSettings } = updated;
     res.json({
@@ -378,6 +406,20 @@ router.post('/admin/settings', (req, res) => {
       message: 'Wallet and system settings updated successfully!',
       settings: safeSettings
     });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin: Test send email
+router.post('/admin/test-email', async (req, res) => {
+  try {
+    const { targetEmail } = req.body;
+    if (!targetEmail || !isValidEmail(targetEmail)) {
+      return res.status(400).json({ success: false, message: 'Valid target email is required' });
+    }
+    const result = await sendOtpEmail(targetEmail, '123456');
+    res.json({ success: result.sent, result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

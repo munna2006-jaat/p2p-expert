@@ -1,39 +1,25 @@
 const nodemailer = require('nodemailer');
 
-function createTransporter() {
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+function getSmtpConfig() {
+  let dbSettings = {};
+  try {
+    const db = require('./db');
+    dbSettings = db.getSettings() || {};
+  } catch (e) {}
 
-  if (!user || !pass || user.includes('your-email') || pass.includes('your-app-password')) {
-    return null;
-  }
+  const rawUser = process.env.SMTP_USER || dbSettings.smtpUser || 'p2pexpertregistration@gmail.com';
+  const rawPass = process.env.SMTP_PASS || dbSettings.smtpPass || 'bdne kakd pctf csju';
+  const rawHost = process.env.SMTP_HOST || dbSettings.smtpHost || 'smtp.gmail.com';
 
-  const cleanUser = user.trim();
-  const cleanPass = pass.replace(/\s+/g, '');
+  const user = rawUser.trim();
+  const pass = rawPass.replace(/\s+/g, '');
+  const host = rawHost.trim();
 
-  const port = parseInt(process.env.SMTP_PORT || '465', 10);
-  const secure = port === 465;
-
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: port,
-    secure: secure,
-    auth: {
-      user: cleanUser,
-      pass: cleanPass
-    },
-    tls: {
-      rejectUnauthorized: false
-    },
-    // Set 10 second timeout for reliable cloud network handshakes
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000
-  });
+  return { user, pass, host };
 }
 
 async function sendOtpEmail(email, otp) {
-  const transporter = createTransporter();
+  const { user, pass, host } = getSmtpConfig();
   const appName = process.env.APP_NAME || 'p2p-expert';
 
   const htmlContent = `
@@ -81,7 +67,7 @@ async function sendOtpEmail(email, otp) {
     </html>
   `;
 
-  // 1. Try Brevo HTTP API (Port 443 - works 100% on Render Free Tier)
+  // 1. Try Brevo HTTP API (Port 443 - works 100% on Render/Voroa free tier)
   if (process.env.BREVO_API_KEY) {
     try {
       const res = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -92,49 +78,22 @@ async function sendOtpEmail(email, otp) {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          sender: {
-            name: appName,
-            email: process.env.SMTP_USER || 'p2pexpertregistration@gmail.com'
-          },
+          sender: { name: appName, email: user },
           to: [{ email: email }],
           subject: `[${otp}] Your ${appName} Verification Code`,
           htmlContent: htmlContent
         })
       });
-      const data = await res.json();
       if (res.ok) {
-        console.log(`✅ Email sent via Brevo HTTP API to ${email}. Message ID: ${data.messageId}`);
-        return { sent: true, mode: 'brevo_http', messageId: data.messageId };
-      } else {
-        console.error('Brevo API error:', data.message);
+        console.log(`✅ Email sent via Brevo HTTP API to ${email}`);
+        return { sent: true, mode: 'brevo_http' };
       }
     } catch (err) {
       console.error('Brevo API request failed:', err.message);
     }
   }
 
-  // Google Apps Script Webhook (Sends directly from your Gmail over HTTPS Port 443)
-  if (process.env.GMAIL_WEBHOOK_URL) {
-    try {
-      const res = await fetch(process.env.GMAIL_WEBHOOK_URL.trim(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: email,
-          subject: `[${otp}] Your ${appName} Verification Code`,
-          html: htmlContent
-        })
-      });
-      if (res.ok) {
-        console.log(`✅ Email sent via Gmail Webhook to ${email}`);
-        return { sent: true, mode: 'gmail_webhook' };
-      }
-    } catch (err) {
-      console.error('Gmail Webhook request failed:', err.message);
-    }
-  }
-
-  // 2. Try Resend HTTP API (Port 443 - works 100% on Render Free Tier)
+  // 2. Try Resend HTTP API (Port 443)
   if (process.env.RESEND_API_KEY) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
@@ -150,57 +109,77 @@ async function sendOtpEmail(email, otp) {
           html: htmlContent
         })
       });
-      const data = await res.json();
       if (res.ok) {
-        console.log(`✅ Email sent via Resend HTTP API to ${email}. ID: ${data.id}`);
-        return { sent: true, mode: 'resend_http', messageId: data.id };
-      } else {
-        console.error('Resend API error:', data.message);
+        console.log(`✅ Email sent via Resend HTTP API to ${email}`);
+        return { sent: true, mode: 'resend_http' };
       }
     } catch (err) {
       console.error('Resend API request failed:', err.message);
     }
   }
 
-  // 3. Try Standard SMTP (Nodemailer)
-  if (!transporter) {
-    console.log('\n==================================================');
-    console.log('📧 [MOCK SMTP MODE - NO CREDENTIALS CONFIGURED]');
-    console.log(`➡️  To: ${email}`);
-    console.log(`🔐  OTP CODE: ${otp}`);
-    console.log('💡  To send real Gmail emails, set SMTP_USER and SMTP_PASS in the .env file.');
-    console.log('==================================================\n');
-    return {
-      sent: true,
-      mode: 'mock',
-      message: 'OTP generated and logged to server console (SMTP credentials pending in .env)',
-      otp: otp
-    };
-  }
-
+  // 3. Try Gmail SMTP Port 465 (SSL)
   try {
-    const info = await transporter.sendMail({
-      from: `"${appName}" <${process.env.SMTP_USER}>`,
+    console.log(`📡 Connecting to Gmail SMTP port 465 for ${email}...`);
+    const transporter465 = nodemailer.createTransport({
+      host: host,
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 8000
+    });
+
+    const info = await transporter465.sendMail({
+      from: `"${appName}" <${user}>`,
       to: email,
       subject: `[${otp}] Your ${appName} Verification Code`,
       text: `Your ${appName} verification code is: ${otp}. It is valid for 10 minutes.`,
       html: htmlContent
     });
 
-    console.log(`✅ Real Email sent successfully to ${email}. Message ID: ${info.messageId}`);
-    return {
-      sent: true,
-      mode: 'real',
-      messageId: info.messageId
-    };
-  } catch (error) {
-    console.error('❌ Error sending email via SMTP:', error.message);
-    return {
-      sent: false,
-      mode: 'error_fallback',
-      error: error.message,
-      otp: otp
-    };
+    console.log(`✅ Real Email sent successfully via Port 465 to ${email}. ID: ${info.messageId}`);
+    return { sent: true, mode: 'real_465', messageId: info.messageId };
+
+  } catch (err465) {
+    console.log(`⚠️ Port 465 failed (${err465.message}). Retrying with Port 587 STARTTLS...`);
+
+    // 4. Retry with Gmail SMTP Port 587 (STARTTLS)
+    try {
+      const transporter587 = nodemailer.createTransport({
+        host: host,
+        port: 587,
+        secure: false,
+        requireTLS: true,
+        auth: { user, pass },
+        tls: { rejectUnauthorized: false },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 8000
+      });
+
+      const info587 = await transporter587.sendMail({
+        from: `"${appName}" <${user}>`,
+        to: email,
+        subject: `[${otp}] Your ${appName} Verification Code`,
+        text: `Your ${appName} verification code is: ${otp}. It is valid for 10 minutes.`,
+        html: htmlContent
+      });
+
+      console.log(`✅ Real Email sent successfully via Port 587 to ${email}. ID: ${info587.messageId}`);
+      return { sent: true, mode: 'real_587', messageId: info587.messageId };
+
+    } catch (err587) {
+      console.error(`❌ Both SMTP ports 465 and 587 failed: ${err587.message}`);
+      return {
+        sent: false,
+        mode: 'error_fallback',
+        error: err587.message,
+        otp: otp
+      };
+    }
   }
 }
 

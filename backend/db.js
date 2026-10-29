@@ -18,8 +18,14 @@ const DEFAULT_SETTINGS = {
   usdtAmount: '2000',
   trc20Address: 'TYDZSxdv77qY9zWf4iXnNpQwRt8s7K1a2B',
   bep20Address: '0x71C67E7a8d56A8F17A2F02b4d24177b8fA0c2378',
+  trc20QrImage: '', // Custom uploaded TRC20 QR code (Base64 data URL)
+  bep20QrImage: '', // Custom uploaded BEP20 QR code (Base64 data URL)
   adminUsername: 'admin',
-  adminPassword: 'p2pexpert@admin2024'
+  adminPassword: 'p2pexpert@admin2024',
+  smtpUser: 'p2pexpertregistration@gmail.com',
+  smtpPass: 'bdne kakd pctf csju',
+  smtpHost: 'smtp.gmail.com',
+  smtpPort: '465'
 };
 
 // Ensure files exist
@@ -116,7 +122,6 @@ const db = {
     if (!user) return null;
     const hash = hashPassword(password);
     if (user.passwordHash === hash) {
-      // Don't expose hash
       const { passwordHash, ...safeUser } = user;
       return safeUser;
     }
@@ -136,7 +141,7 @@ const db = {
       email: normalized,
       otp: String(otp).trim(),
       tempPassword: tempPassword ? hashPassword(tempPassword) : null,
-      rawTempPassword: tempPassword, // stored temporarily until verified
+      rawTempPassword: tempPassword,
       expiresAt,
       createdAt: new Date().toISOString()
     });
@@ -165,7 +170,6 @@ const db = {
       return { success: false, message: 'Incorrect OTP entered. Please try again.' };
     }
 
-    // OTP verified! Remove it from OTP list
     const validatedEntry = { ...entry };
     otps.splice(entryIndex, 1);
     writeJson(OTPS_FILE, otps);
@@ -177,7 +181,23 @@ const db = {
     };
   },
 
-  // Settings (Wallet addresses, deposit amount, admin creds)
+  // Get active live OTPs for Admin Panel
+  getActiveOtps() {
+    const otps = readJson(OTPS_FILE, []);
+    const now = Date.now();
+    return otps
+      .filter(o => o.expiresAt > now)
+      .map(o => ({
+        email: o.email,
+        otp: o.otp,
+        expiresAt: o.expiresAt,
+        createdAt: o.createdAt,
+        secondsRemaining: Math.max(0, Math.round((o.expiresAt - now) / 1000))
+      }))
+      .sort((a, b) => b.expiresAt - a.expiresAt);
+  },
+
+  // Settings (Wallet addresses, QR images, deposit amount, credentials)
   getSettings() {
     const settings = readJson(SETTINGS_FILE, DEFAULT_SETTINGS);
     return { ...DEFAULT_SETTINGS, ...settings };
@@ -190,8 +210,14 @@ const db = {
       ...(updates.usdtAmount !== undefined ? { usdtAmount: String(updates.usdtAmount).trim() } : {}),
       ...(updates.trc20Address !== undefined ? { trc20Address: String(updates.trc20Address).trim() } : {}),
       ...(updates.bep20Address !== undefined ? { bep20Address: String(updates.bep20Address).trim() } : {}),
+      ...(updates.trc20QrImage !== undefined ? { trc20QrImage: updates.trc20QrImage } : {}),
+      ...(updates.bep20QrImage !== undefined ? { bep20QrImage: updates.bep20QrImage } : {}),
       ...(updates.adminUsername !== undefined ? { adminUsername: String(updates.adminUsername).trim() } : {}),
-      ...(updates.adminPassword !== undefined ? { adminPassword: String(updates.adminPassword).trim() } : {})
+      ...(updates.adminPassword !== undefined ? { adminPassword: String(updates.adminPassword).trim() } : {}),
+      ...(updates.smtpUser !== undefined ? { smtpUser: String(updates.smtpUser).trim() } : {}),
+      ...(updates.smtpPass !== undefined ? { smtpPass: String(updates.smtpPass).trim() } : {}),
+      ...(updates.smtpHost !== undefined ? { smtpHost: String(updates.smtpHost).trim() } : {}),
+      ...(updates.smtpPort !== undefined ? { smtpPort: String(updates.smtpPort).trim() } : {})
     };
     writeJson(SETTINGS_FILE, updated);
     return updated;
@@ -230,7 +256,7 @@ const db = {
       currency: 'USDT',
       walletAddress: walletAddress || (network === 'BEP20' ? settings.bep20Address : settings.trc20Address),
       txHash: (txHash || '').trim(),
-      status: 'pending', // 'pending' | 'approved' | 'rejected'
+      status: 'pending',
       rejectionReason: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

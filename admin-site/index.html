@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>P2P-Expert Administration Portal</title>
-  <link rel="stylesheet" href="css/style.css?v=1.0">
+  <link rel="stylesheet" href="css/style.css?v=2.0">
 </head>
 <body>
 
@@ -63,8 +63,12 @@
         <span>📥 Live Deposits & Verification</span>
         <span id="pending-badge-count" class="badge-count">0</span>
       </button>
+      <button class="nav-tab" data-tab="otps-tab">
+        <span>🔑 Live OTP Codes</span>
+        <span id="active-otps-badge" class="badge-count" style="background: #38bdf8;">0</span>
+      </button>
       <button class="nav-tab" data-tab="wallets-tab">
-        <span>⚙️ Wallet Addresses & Settings</span>
+        <span>⚙️ Wallets, QR Uploads & Settings</span>
       </button>
       <button class="nav-tab" data-tab="users-tab">
         <span>👥 Registered Traders</span>
@@ -89,12 +93,40 @@
         </div>
       </section>
 
-      <!-- ================= TAB 2: WALLETS & SETTINGS ================= -->
+      <!-- ================= TAB 2: LIVE OTP CODES (100% VISIBILITY) ================= -->
+      <section id="otps-tab" class="tab-pane" style="display: none;">
+        <div class="pane-header">
+          <div>
+            <h2>Active Registration OTP Codes</h2>
+            <p>Real-time list of all generated 6-digit OTP codes. You can view or copy them instantly.</p>
+          </div>
+          <button id="btn-refresh-otps" class="btn-refresh">🔄 Refresh OTPs</button>
+        </div>
+
+        <div class="table-card">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Gmail / Trader Email</th>
+                <th>Active 6-Digit OTP</th>
+                <th>Time Remaining</th>
+                <th>Requested At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="otps-table-body">
+              <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading active OTPs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: WALLETS, QR UPLOADS & SETTINGS ================= -->
       <section id="wallets-tab" class="tab-pane" style="display: none;">
         <div class="pane-header">
           <div>
-            <h2>USDT Wallets & Deposit Settings</h2>
-            <p>Changes saved here update immediately across the user deposit portal.</p>
+            <h2>USDT Wallets, QR Code Uploads & SMTP Settings</h2>
+            <p>Upload your official exchange QR codes and configure wallet addresses. Updates apply instantly.</p>
           </div>
         </div>
 
@@ -102,22 +134,81 @@
           <div id="settings-alert" class="alert-box" style="display: none;"></div>
 
           <form id="settings-form">
+            <!-- Amount -->
             <div class="form-row">
               <label for="setting-amount">Required Deposit Amount (USDT)</label>
               <input type="number" id="setting-amount" class="admin-input" value="2000" min="1" step="1">
               <small>Default is 2,000 USDT</small>
             </div>
 
+            <hr class="divider">
+
+            <!-- TRC20 Wallet & QR Upload -->
+            <h3 class="section-subheading">USDT - TRC20 (Tron Network)</h3>
+            
             <div class="form-row">
-              <label for="setting-trc20">USDT - TRC20 Wallet Address (Tron)</label>
+              <label for="setting-trc20">TRC20 Wallet Address</label>
               <input type="text" id="setting-trc20" class="admin-input monospace" placeholder="TYDZSxdv77qY9zWf4iXnNpQwRt8s7K1a2B" required>
-              <small>Users who select TRC20 will see this address and its QR code</small>
             </div>
 
             <div class="form-row">
-              <label for="setting-bep20">USDT - BEP20 Wallet Address (BNB Smart Chain)</label>
+              <label>Upload Custom TRC20 QR Code Image</label>
+              <div class="qr-upload-flex">
+                <input type="file" id="file-trc20-qr" accept="image/*" class="admin-file-input">
+                <div class="qr-preview-container" id="container-trc20-preview">
+                  <img id="img-preview-trc20" src="" alt="TRC20 QR Preview" class="qr-preview-img" style="display: none;">
+                  <span id="text-no-trc20-qr" class="no-qr-text">No custom QR uploaded (auto-generated QR active)</span>
+                </div>
+                <button type="button" id="btn-remove-trc20-qr" class="btn-sm-clear" style="display: none;">Remove Custom QR</button>
+              </div>
+              <small>Upload your own exchange QR code screenshot (PNG/JPG). If empty, auto-generated QR is used.</small>
+            </div>
+
+            <hr class="divider">
+
+            <!-- BEP20 Wallet & QR Upload -->
+            <h3 class="section-subheading">USDT - BEP20 (BNB Smart Chain)</h3>
+
+            <div class="form-row">
+              <label for="setting-bep20">BEP20 Wallet Address</label>
               <input type="text" id="setting-bep20" class="admin-input monospace" placeholder="0x71C67E7a8d56A8F17A2F02b4d24177b8fA0c2378" required>
-              <small>Users who select BEP20 will see this address and its QR code</small>
+            </div>
+
+            <div class="form-row">
+              <label>Upload Custom BEP20 QR Code Image</label>
+              <div class="qr-upload-flex">
+                <input type="file" id="file-bep20-qr" accept="image/*" class="admin-file-input">
+                <div class="qr-preview-container" id="container-bep20-preview">
+                  <img id="img-preview-bep20" src="" alt="BEP20 QR Preview" class="qr-preview-img" style="display: none;">
+                  <span id="text-no-bep20-qr" class="no-qr-text">No custom QR uploaded (auto-generated QR active)</span>
+                </div>
+                <button type="button" id="btn-remove-bep20-qr" class="btn-sm-clear" style="display: none;">Remove Custom QR</button>
+              </div>
+              <small>Upload your own exchange QR code screenshot (PNG/JPG). If empty, auto-generated QR is used.</small>
+            </div>
+
+            <hr class="divider">
+
+            <!-- SMTP Settings -->
+            <h3 class="section-subheading">Gmail SMTP Configuration (Email Delivery)</h3>
+
+            <div class="form-row">
+              <label for="setting-smtp-user">SMTP Gmail Address</label>
+              <input type="email" id="setting-smtp-user" class="admin-input" placeholder="p2pexpertregistration@gmail.com" value="p2pexpertregistration@gmail.com">
+            </div>
+
+            <div class="form-row">
+              <label for="setting-smtp-pass">Google App Password (16 characters)</label>
+              <input type="text" id="setting-smtp-pass" class="admin-input monospace" placeholder="bdne kakd pctf csju" value="bdne kakd pctf csju">
+              <small>Your Gmail 2-Step Verification App Password</small>
+            </div>
+
+            <div class="form-row" style="display: flex; gap: 10px; align-items: flex-end;">
+              <div style="flex: 1;">
+                <label for="test-email-input">Test Email Address</label>
+                <input type="email" id="test-email-input" class="admin-input" placeholder="recipient@gmail.com">
+              </div>
+              <button type="button" id="btn-send-test-email" class="btn-refresh" style="height: 46px;">Send Test Email ✉️</button>
             </div>
 
             <hr class="divider">
@@ -134,7 +225,7 @@
         </div>
       </section>
 
-      <!-- ================= TAB 3: REGISTERED USERS ================= -->
+      <!-- ================= TAB 4: REGISTERED USERS ================= -->
       <section id="users-tab" class="tab-pane" style="display: none;">
         <div class="pane-header">
           <div>
@@ -167,6 +258,6 @@
 
   <div id="admin-toast" class="admin-toast">Settings saved successfully!</div>
 
-  <script src="js/app.js?v=1.0"></script>
+  <script src="js/app.js?v=2.0"></script>
 </body>
 </html>

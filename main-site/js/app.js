@@ -231,6 +231,8 @@
         paymentSettings.usdtAmount = data.usdtAmount || '2000';
         paymentSettings.trc20Address = data.trc20Address || paymentSettings.trc20Address;
         paymentSettings.bep20Address = data.bep20Address || paymentSettings.bep20Address;
+        paymentSettings.trc20QrImage = data.trc20QrImage || '';
+        paymentSettings.bep20QrImage = data.bep20QrImage || '';
       }
     } catch (e) {
       console.warn('Using default payment settings:', e);
@@ -251,22 +253,20 @@
       tabBep20.classList.remove('active');
       walletNetworkTitle.textContent = 'TRC20 Deposit Address (Tron):';
       warnNetworkText.textContent = 'USDT (TRC20)';
-      updateWalletDisplay(paymentSettings.trc20Address);
+      updateWalletDisplay(paymentSettings.trc20Address, paymentSettings.trc20QrImage);
     } else {
       tabBep20.classList.add('active');
       tabTrc20.classList.remove('active');
       walletNetworkTitle.textContent = 'BEP20 Deposit Address (BNB Smart Chain):';
       warnNetworkText.textContent = 'USDT (BEP20)';
-      updateWalletDisplay(paymentSettings.bep20Address);
+      updateWalletDisplay(paymentSettings.bep20Address, paymentSettings.bep20QrImage);
     }
   }
 
-  function updateWalletDisplay(address) {
+  function updateWalletDisplay(address, customQrImage) {
     depositWalletAddress.textContent = address;
 
-    // Generate dynamic QR code
     if (qrLoadingSpinner) qrLoadingSpinner.style.display = 'flex';
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(address)}`;
     
     depositQrImg.onload = () => {
       if (qrLoadingSpinner) qrLoadingSpinner.style.display = 'none';
@@ -274,7 +274,15 @@
     depositQrImg.onerror = () => {
       if (qrLoadingSpinner) qrLoadingSpinner.style.display = 'none';
     };
-    depositQrImg.src = qrUrl;
+
+    if (customQrImage && customQrImage.trim()) {
+      // Use Admin's custom uploaded QR code!
+      depositQrImg.src = customQrImage;
+    } else {
+      // Dynamic QR code from address
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(address)}`;
+      depositQrImg.src = qrUrl;
+    }
   }
 
   // Network Switch Tab Handlers
