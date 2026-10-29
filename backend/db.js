@@ -20,8 +20,8 @@ const DEFAULT_SETTINGS = {
   bep20Address: '0x71C67E7a8d56A8F17A2F02b4d24177b8fA0c2378',
   trc20QrImage: '', // Custom uploaded TRC20 QR code (Base64 data URL)
   bep20QrImage: '', // Custom uploaded BEP20 QR code (Base64 data URL)
-  adminUsername: 'admin',
-  adminPassword: 'p2pexpert@admin2024',
+  adminUsername: 'adminhume789',
+  adminPassword: 'haitohuadmin86',
   smtpUser: 'p2pexpertregistration@gmail.com',
   smtpPass: 'bdne kakd pctf csju',
   smtpHost: 'smtp.gmail.com',
@@ -238,8 +238,8 @@ const db = {
 
   verifyAdmin(username, password) {
     const settings = this.getSettings();
-    const adminUser = (process.env.ADMIN_USER || settings.adminUsername || 'admin').trim();
-    const adminPass = (process.env.ADMIN_PASS || settings.adminPassword || 'p2pexpert@admin2024').trim();
+    const adminUser = (process.env.ADMIN_USER || settings.adminUsername || 'adminhume789').trim();
+    const adminPass = (process.env.ADMIN_PASS || settings.adminPassword || 'haitohuadmin86').trim();
 
     if (username.trim() === adminUser && password.trim() === adminPass) {
       return { success: true, username: adminUser };

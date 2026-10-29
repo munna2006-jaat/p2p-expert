@@ -5,7 +5,7 @@
 
   // State
   let adminToken = localStorage.getItem('p2p_admin_token') || null;
-  let adminUsername = localStorage.getItem('p2p_admin_user') || 'admin';
+  let adminUsername = localStorage.getItem('p2p_admin_user') || 'adminhume789';
   let depositsPollTimer = null;
   let otpsPollTimer = null;
 
@@ -46,6 +46,7 @@
   const settingBep20 = document.getElementById('setting-bep20');
   const settingSmtpUser = document.getElementById('setting-smtp-user');
   const settingSmtpPass = document.getElementById('setting-smtp-pass');
+  const settingAdminUser = document.getElementById('setting-admin-user');
   const settingAdminPass = document.getElementById('setting-admin-pass');
   const testEmailInput = document.getElementById('test-email-input');
   const btnSendTestEmail = document.getElementById('btn-send-test-email');
@@ -415,6 +416,7 @@
         settingBep20.value = s.bep20Address || '';
         settingSmtpUser.value = s.smtpUser || 'p2pexpertregistration@gmail.com';
         settingSmtpPass.value = s.smtpPass || 'bdne kakd pctf csju';
+        if (settingAdminUser) settingAdminUser.value = s.adminUsername || 'adminhume789';
 
         // TRC20 QR Preview
         if (s.trc20QrImage && s.trc20QrImage.trim()) {
@@ -458,6 +460,7 @@
     const bep20Address = settingBep20.value.trim();
     const smtpUser = settingSmtpUser.value.trim();
     const smtpPass = settingSmtpPass.value.trim();
+    const newUsername = settingAdminUser ? settingAdminUser.value.trim() : '';
     const newPass = settingAdminPass.value.trim();
 
     btnSaveSettings.disabled = true;
@@ -473,6 +476,7 @@
         smtpUser,
         smtpPass
       };
+      if (newUsername) payload.adminUsername = newUsername;
       if (newPass) payload.adminPassword = newPass;
 
       const res = await fetch(`${API_BASE}/admin/settings`, {
@@ -486,12 +490,17 @@
         throw new Error(data.message || 'Error saving settings');
       }
 
-      showToast('Settings, Wallets & Custom QR Codes saved! 💾');
-      settingsAlert.className = 'alert-box success';
-      settingsAlert.textContent = '✅ All settings and uploaded QR images updated successfully!';
-      settingsAlert.style.display = 'block';
-
+      if (newUsername) {
+        adminUsername = newUsername;
+        localStorage.setItem('p2p_admin_user', adminUsername);
+        adminDisplayName.textContent = adminUsername;
+      }
       if (newPass) settingAdminPass.value = '';
+
+      showToast('Settings, Wallets & Admin Credentials saved! 💾');
+      settingsAlert.className = 'alert-box success';
+      settingsAlert.textContent = '✅ All settings and admin credentials updated successfully!';
+      settingsAlert.style.display = 'block';
 
     } catch (err) {
       settingsAlert.className = 'alert-box error';

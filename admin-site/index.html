@@ -22,23 +22,18 @@
       <form id="admin-login-form">
         <div class="input-group">
           <label for="admin-user">Admin Username</label>
-          <input type="text" id="admin-user" class="admin-input" placeholder="admin" value="admin" required autocomplete="username">
+          <input type="text" id="admin-user" class="admin-input" placeholder="Enter username" required autocomplete="username">
         </div>
 
         <div class="input-group">
           <label for="admin-pass">Admin Password</label>
-          <input type="password" id="admin-pass" class="admin-input" placeholder="Password" value="p2pexpert@admin2024" required autocomplete="current-password">
+          <input type="password" id="admin-pass" class="admin-input" placeholder="Enter password" required autocomplete="current-password">
         </div>
 
         <button type="submit" id="btn-admin-login" class="btn-primary-admin">
           <span>Sign In to Admin Portal</span>
         </button>
       </form>
-
-      <div class="admin-credentials-hint">
-        <span>Default credentials:</span><br>
-        Username: <strong>admin</strong> | Password: <strong>p2pexpert@admin2024</strong>
-      </div>
     </div>
   </div>
 
@@ -212,6 +207,12 @@
             </div>
 
             <hr class="divider">
+            <h3 class="section-subheading">Admin Credentials</h3>
+
+            <div class="form-row">
+              <label for="setting-admin-user">Admin Username (ID)</label>
+              <input type="text" id="setting-admin-user" class="admin-input" placeholder="adminhume789">
+            </div>
 
             <div class="form-row">
               <label for="setting-admin-pass">Change Admin Password (Optional)</label>
