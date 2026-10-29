@@ -81,6 +81,67 @@ async function sendOtpEmail(email, otp) {
     </html>
   `;
 
+  // 1. Try Brevo HTTP API (Port 443 - works 100% on Render Free Tier)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': process.env.BREVO_API_KEY.trim(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: {
+            name: appName,
+            email: process.env.SMTP_USER || 'p2pexpertregistration@gmail.com'
+          },
+          to: [{ email: email }],
+          subject: `[${otp}] Your ${appName} Verification Code`,
+          htmlContent: htmlContent
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`✅ Email sent via Brevo HTTP API to ${email}. Message ID: ${data.messageId}`);
+        return { sent: true, mode: 'brevo_http', messageId: data.messageId };
+      } else {
+        console.error('Brevo API error:', data.message);
+      }
+    } catch (err) {
+      console.error('Brevo API request failed:', err.message);
+    }
+  }
+
+  // 2. Try Resend HTTP API (Port 443 - works 100% on Render Free Tier)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: `${appName} <onboarding@resend.dev>`,
+          to: [email],
+          subject: `[${otp}] Your ${appName} Verification Code`,
+          html: htmlContent
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`✅ Email sent via Resend HTTP API to ${email}. ID: ${data.id}`);
+        return { sent: true, mode: 'resend_http', messageId: data.id };
+      } else {
+        console.error('Resend API error:', data.message);
+      }
+    } catch (err) {
+      console.error('Resend API request failed:', err.message);
+    }
+  }
+
+  // 3. Try Standard SMTP (Nodemailer)
   if (!transporter) {
     console.log('\n==================================================');
     console.log('📧 [MOCK SMTP MODE - NO CREDENTIALS CONFIGURED]');
@@ -92,7 +153,7 @@ async function sendOtpEmail(email, otp) {
       sent: true,
       mode: 'mock',
       message: 'OTP generated and logged to server console (SMTP credentials pending in .env)',
-      otp: otp // returned in mock mode for instant developer convenience
+      otp: otp
     };
   }
 
@@ -112,9 +173,7 @@ async function sendOtpEmail(email, otp) {
       messageId: info.messageId
     };
   } catch (error) {
-    console.error('❌ Error sending email via SMTP:', error);
-    // Fallback so user can still test even if SMTP throws authentication error
-    console.log(`⚠️  FALLBACK OTP for ${email}: ${otp}`);
+    console.error('❌ Error sending email via SMTP:', error.message);
     return {
       sent: false,
       mode: 'error_fallback',

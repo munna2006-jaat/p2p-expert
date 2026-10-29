@@ -161,12 +161,7 @@
 
       showStep(stepOtp);
       startResendCountdown();
-
-      if (data.fallbackOtp) {
-        showMessage(otpMessage, `💡 Notice (Render Free Tier blocks port 465):<br>Your Verification Code is: <strong style="font-size:16px; letter-spacing:2px;">${data.fallbackOtp}</strong>`, 'info');
-      } else {
-        hideMessage(otpMessage);
-      }
+      hideMessage(otpMessage);
 
       // Clear and focus first OTP input
       otpDigits.forEach(input => (input.value = ''));
@@ -271,11 +266,7 @@
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.message);
 
-      if (data.fallbackOtp) {
-        showMessage(otpMessage, `💡 Notice (Render Free Tier blocks port 465):<br>Your Fresh Code is: <strong style="font-size:16px; letter-spacing:2px;">${data.fallbackOtp}</strong>`, 'info');
-      } else {
-        showMessage(otpMessage, '✅ Fresh verification code sent to your email.', 'success');
-      }
+      showMessage(otpMessage, '✅ Fresh verification code sent to your email.', 'success');
       startResendCountdown();
     } catch (err) {
       showMessage(otpMessage, `⚠️ ${err.message}`, 'error');

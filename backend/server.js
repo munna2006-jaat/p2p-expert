@@ -84,11 +84,8 @@ router.post('/register-send-otp', async (req, res) => {
 
     return res.json({
       success: true,
-      message: emailResult.sent ? `Verification code sent to ${email}` : `Verification code generated for ${email}`,
-      email: email.trim().toLowerCase(),
-      sent: emailResult.sent,
-      fallbackOtp: !emailResult.sent ? emailResult.otp : undefined,
-      firewallNotice: !emailResult.sent ? 'Render Free tier blocks outbound SMTP ports 465/587.' : undefined
+      message: `Verification code sent to ${email}`,
+      email: email.trim().toLowerCase()
     });
   } catch (error) {
     console.error('Error in /register-send-otp:', error);
@@ -155,9 +152,7 @@ router.post('/resend-otp', async (req, res) => {
 
     res.json({
       success: true,
-      message: emailResult.sent ? `A fresh OTP has been sent to ${email}` : `Fresh OTP generated for ${email}`,
-      sent: emailResult.sent,
-      fallbackOtp: !emailResult.sent ? emailResult.otp : undefined
+      message: `A fresh OTP has been sent to ${email}`
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
