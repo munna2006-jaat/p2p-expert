@@ -1,0 +1,16 @@
+{
+  "name": "p2p-expert-web",
+  "version": "1.0.0",
+  "description": "Mobile-first P2P Expert registration & login portals with Gmail SMTP OTP verification",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "nodemailer": "^6.10.0"
+  }
+}

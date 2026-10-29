@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Trader’s account login | p2p-expert</title>
+  <meta name="description" content="p2p-expert Trader Account Login Portal">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="mobile-wrapper">
+    <!-- Top Bar -->
+    <header class="top-nav-bar">
+      <div class="brand-badge">
+        <span class="dot"></span>
+        <span>p2p-expert</span>
+      </div>
+      <span style="font-size: 11px; color: #6b7280; font-weight: 500;">OFFICIAL</span>
+    </header>
+
+    <!-- Main Login View (matches screenshot precisely) -->
+    <main id="login-view" class="screen-container">
+      
+      <!-- ->] Login Icon (matching the image) -->
+      <div class="login-icon-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Right bracket (door) -->
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <!-- Entering arrow -->
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+      </div>
+
+      <!-- Title matching screenshot -->
+      <h1 class="login-title">Trader’s account login</h1>
+
+      <!-- Error / Notice Banner -->
+      <div id="login-alert" class="login-message"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" novalidate>
+        <!-- Email Input -->
+        <div class="form-group">
+          <div class="input-pill-wrapper">
+            <input 
+              type="email" 
+              id="login-email" 
+              class="input-pill" 
+              placeholder="Email" 
+              required 
+              autocomplete="email"
+              spellcheck="false"
+            >
+          </div>
+        </div>
+
+        <!-- Password Input with Eye Toggle -->
+        <div class="form-group">
+          <div class="input-pill-wrapper">
+            <input 
+              type="password" 
+              id="login-password" 
+              class="input-pill" 
+              placeholder="Password" 
+              required 
+              autocomplete="current-password"
+            >
+            <button type="button" id="toggle-login-password" class="password-toggle-btn" aria-label="Toggle password visibility">
+              <!-- Crossed Eye Icon matching screenshot -->
+              <svg id="eye-off-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+              <svg id="eye-on-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sign in Button -->
+        <button type="submit" id="btn-submit-login" class="btn-signin">
+          <span>Sign in</span>
+        </button>
+      </form>
+
+      <!-- Footer "Can't log in?" link matching screenshot -->
+      <div class="login-footer">
+        <a href="javascript:void(0)" id="cant-login-btn" class="cant-login-link">Can’t log in?</a>
+      </div>
+    </main>
+
+    <!-- ================= 2-SECOND WELCOME ANIMATION OVERLAY ================= -->
+    <div id="welcome-animation" class="welcome-animation-overlay">
+      <div class="anim-badge-container">
+        <div class="anim-pulse-ring"></div>
+        <div class="anim-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+      <h2 class="anim-title">Welcome to p2p-expert!</h2>
+      <p id="anim-user-email-text" class="anim-user-email">trader@gmail.com</p>
+      
+      <!-- 2-Second Animated Progress Bar -->
+      <div class="anim-progress-bar-container">
+        <div class="anim-progress-bar"></div>
+      </div>
+      <span class="anim-status-text">Loading Trader Workstation...</span>
+    </div>
+
+    <!-- ================= TRADER WELCOME DASHBOARD ================= -->
+    <section id="trader-dashboard" class="trader-dashboard">
+      <div class="dash-header">
+        <div class="dash-trader-badge">
+          <span class="status-dot"></span>
+          <span>Verified Trader</span>
+        </div>
+        <button id="btn-logout" class="logout-icon-btn" title="Sign out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Trader Welcome Info Card -->
+      <div class="profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar" id="dash-avatar-letter">T</div>
+          <div class="profile-info">
+            <h3 id="dash-welcome-name">Welcome Back!</h3>
+            <p id="dash-user-email">trader@gmail.com</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; font-size: 11px; color: #475569;">
+          <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px;">ID: <strong id="dash-user-id">#TRD-9821</strong></span>
+          <span style="background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 6px; font-weight: 600;">Status: Active 🟢</span>
+        </div>
+      </div>
+
+      <!-- Balance Card -->
+      <div class="balance-card">
+        <div class="balance-title">P2P Trading Balance</div>
+        <div class="balance-amount">$0.00 <span>USDT</span></div>
+        <div class="quick-actions-row">
+          <button class="quick-action-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
+            Deposit
+          </button>
+          <button class="quick-action-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m17 7-10 10m0-10v10h10"/></svg>
+            P2P Orders
+          </button>
+          <button class="quick-action-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            Escrow
+          </button>
+        </div>
+      </div>
+
+      <!-- Future Features Card (aage m bta dunga) -->
+      <div class="next-steps-card">
+        <h4>
+          <span>⚡</span>
+          <span>Trader Workstation Activated</span>
+        </h4>
+        <p>
+          Your credentials have been securely verified. The trader dashboard is ready for further custom features as instructed.
+        </p>
+      </div>
+
+      <button id="btn-relogin" class="btn-signin" style="margin-top: auto;">
+        Sign Out & Return to Login
+      </button>
+    </section>
+
+    <!-- Modal for "Can't log in?" -->
+    <div id="modal-cant-login" class="modal-overlay">
+      <div class="modal-card">
+        <h3>Trouble Signing In?</h3>
+        <p>Please check that your registered Gmail and password are correct. If you need assistance or password reset, contact the p2p-expert Trader Support desk.</p>
+        <button type="button" id="modal-close-btn" class="btn-signin" style="margin-top: 10px;">
+          Back to Login
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

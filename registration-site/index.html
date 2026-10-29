@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>p2p-expert Registration | Trader Portal</title>
+  <meta name="description" content="Create your p2p-expert trader account with secure email OTP verification.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Floating Toast Notification -->
+  <div id="toast" class="toast">Link copied to clipboard! 📋</div>
+
+  <div class="mobile-wrapper">
+    <!-- Top Status / Branding Bar -->
+    <header class="status-bar">
+      <div class="brand-badge">
+        <span class="dot"></span>
+        <span>p2p-expert</span>
+      </div>
+      <span style="font-size: 11px; color: #6b7280; font-weight: 500;">SECURE SSL</span>
+    </header>
+
+    <!-- Main Screen Flow -->
+    <main class="screen-content">
+      
+      <!-- ================= STEP 1: REGISTRATION FORM ================= -->
+      <section id="step-register" class="step-view active">
+        <!-- Minimalist Login / Register Icon matching screenshot aesthetic -->
+        <div class="hero-icon-container">
+          <div class="hero-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+          </div>
+        </div>
+
+        <h1 class="main-title">Trader’s account registration</h1>
+        <p class="subtitle">Enter your Gmail and create a password to receive your secure OTP code.</p>
+
+        <!-- Message Box -->
+        <div id="reg-message" class="message-banner"></div>
+
+        <form id="register-form" novalidate>
+          <!-- Email Input Pill -->
+          <div class="form-group">
+            <div class="input-pill-wrapper">
+              <input 
+                type="email" 
+                id="reg-email" 
+                class="input-pill" 
+                placeholder="Gmail / Email address" 
+                required 
+                autocomplete="email"
+                spellcheck="false"
+              >
+            </div>
+          </div>
+
+          <!-- Password Input Pill -->
+          <div class="form-group">
+            <div class="input-pill-wrapper">
+              <input 
+                type="password" 
+                id="reg-password" 
+                class="input-pill" 
+                placeholder="Password (minimum 6 characters)" 
+                required 
+                autocomplete="new-password"
+              >
+              <button type="button" class="input-icon-btn toggle-password" data-target="reg-password" aria-label="Toggle password visibility">
+                <!-- Eye icon (crossed) -->
+                <svg class="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+                <svg class="eye-on-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm Password Input Pill -->
+          <div class="form-group">
+            <div class="input-pill-wrapper">
+              <input 
+                type="password" 
+                id="reg-confirm-password" 
+                class="input-pill" 
+                placeholder="Confirm password" 
+                required 
+                autocomplete="new-password"
+              >
+              <button type="button" class="input-icon-btn toggle-password" data-target="reg-confirm-password" aria-label="Toggle confirm password visibility">
+                <svg class="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+                <svg class="eye-on-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="submit-register-btn" class="btn-primary">
+            <span>Send OTP Code</span>
+          </button>
+        </form>
+
+
+      </section>
+
+      <!-- ================= STEP 2: OTP VERIFICATION ================= -->
+      <section id="step-otp" class="step-view">
+        <div class="hero-icon-container">
+          <div class="hero-icon" style="color: #2563eb;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+          </div>
+        </div>
+
+        <h2 class="main-title">Enter OTP Code</h2>
+        <p class="subtitle">
+          We sent a 6-digit verification code to<br>
+          <strong id="display-user-email" style="color: #0f172a; word-break: break-all;">user@gmail.com</strong>
+        </p>
+
+        <!-- Mock / Dev helper banner when SMTP credentials are not yet configured -->
+        <div id="dev-otp-banner" class="dev-banner" style="display: none;">
+          ⚡ <strong>Developer Test Code:</strong> <span id="dev-otp-code" style="font-size: 15px; font-weight: 800; letter-spacing: 2px;"></span><br>
+          <small>Real Gmail delivery activates automatically once SMTP secrets are added to .env</small>
+        </div>
+
+        <!-- Message Box -->
+        <div id="otp-message" class="message-banner"></div>
+
+        <form id="otp-form" novalidate>
+          <!-- 6-digit inputs -->
+          <div class="otp-inputs-grid">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" data-index="0" autofocus>
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" data-index="1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" data-index="2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" data-index="3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" data-index="4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-digit" data-index="5">
+          </div>
+
+          <button type="submit" id="verify-otp-btn" class="btn-primary">
+            <span>Verify & Complete</span>
+          </button>
+        </form>
+
+        <div class="otp-meta">
+          <div>
+            Didn't receive code? 
+            <button type="button" id="resend-otp-btn" class="resend-btn" disabled>
+              Resend (<span id="resend-countdown" class="countdown-badge">59s</span>)
+            </button>
+          </div>
+          <div>
+            <span id="back-to-register-btn" class="change-email-btn">Change email address</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= STEP 3: REGISTRATION SUCCESSFUL ================= -->
+      <section id="step-success" class="step-view">
+        <div class="success-card">
+          <div class="success-badge-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+
+          <h2 class="success-title">Registration Successful!</h2>
+          <p class="success-text">
+            Welcome to <strong>p2p-expert</strong>! Your trader account is verified and ready. You can now login to the main website using your registered Gmail & Password.
+          </p>
+
+          <div class="email-pill-display">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+            <span id="success-verified-email">trader@gmail.com</span>
+          </div>
+
+          <!-- Main Website Link Box -->
+          <div class="link-box-container">
+            <div class="link-box-label">Main Trader Login Website (p2p-expert)</div>
+            <div class="link-box-url">
+              <span id="main-site-display-url">http://localhost:3000</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Copy Link Button (as requested by user) -->
+          <button type="button" id="copy-link-btn" class="btn-outline">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copy Link</span>
+          </button>
+
+          <!-- Next Button (Takes user to main website) -->
+          <a id="next-to-main-btn" href="http://localhost:3000" class="btn-primary" style="text-decoration: none;">
+            <span>Next: Open Main Website</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
