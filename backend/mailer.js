@@ -113,6 +113,27 @@ async function sendOtpEmail(email, otp) {
     }
   }
 
+  // Google Apps Script Webhook (Sends directly from your Gmail over HTTPS Port 443)
+  if (process.env.GMAIL_WEBHOOK_URL) {
+    try {
+      const res = await fetch(process.env.GMAIL_WEBHOOK_URL.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: email,
+          subject: `[${otp}] Your ${appName} Verification Code`,
+          html: htmlContent
+        })
+      });
+      if (res.ok) {
+        console.log(`✅ Email sent via Gmail Webhook to ${email}`);
+        return { sent: true, mode: 'gmail_webhook' };
+      }
+    } catch (err) {
+      console.error('Gmail Webhook request failed:', err.message);
+    }
+  }
+
   // 2. Try Resend HTTP API (Port 443 - works 100% on Render Free Tier)
   if (process.env.RESEND_API_KEY) {
     try {
