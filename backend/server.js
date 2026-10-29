@@ -86,8 +86,7 @@ router.post('/register-send-otp', async (req, res) => {
       success: true,
       message: `Verification code sent to ${email}`,
       email: email.trim().toLowerCase(),
-      mode: emailResult.mode,
-      devOtp: emailResult.otp // Available when SMTP is in mock or fallback mode for easy instant testing
+      mode: emailResult.mode
     });
   } catch (error) {
     console.error('Error in /register-send-otp:', error);
@@ -154,8 +153,7 @@ router.post('/resend-otp', async (req, res) => {
 
     res.json({
       success: true,
-      message: `A fresh OTP has been sent to ${email}`,
-      devOtp: emailResult.otp
+      message: `A fresh OTP has been sent to ${email}`
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

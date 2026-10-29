@@ -32,12 +32,12 @@
   const resendOtpBtn = document.getElementById('resend-otp-btn');
   const resendCountdown = document.getElementById('resend-countdown');
   const backToRegisterBtn = document.getElementById('back-to-register-btn');
-  const devOtpBanner = document.getElementById('dev-otp-banner');
-  const devOtpCode = document.getElementById('dev-otp-code');
+
 
   const successVerifiedEmail = document.getElementById('success-verified-email');
   const mainSiteDisplayUrl = document.getElementById('main-site-display-url');
   const copyLinkBtn = document.getElementById('copy-link-btn');
+  const nextToMainBtn = document.getElementById('next-to-main-btn');
   const toast = document.getElementById('toast');
 
   // Set initial links
@@ -146,14 +146,6 @@
       currentEmail = email;
       displayUserEmail.textContent = email;
 
-      // Check if dev test code is available
-      if (data.devOtp) {
-        devOtpBanner.style.display = 'block';
-        devOtpCode.textContent = data.devOtp;
-      } else {
-        devOtpBanner.style.display = 'none';
-      }
-
       showStep(stepOtp);
       startResendCountdown();
 
@@ -254,10 +246,6 @@
       if (!response.ok || !data.success) throw new Error(data.message);
 
       showMessage(otpMessage, '✅ Fresh verification code sent to your email.', 'success');
-      if (data.devOtp) {
-        devOtpBanner.style.display = 'block';
-        devOtpCode.textContent = data.devOtp;
-      }
       startResendCountdown();
     } catch (err) {
       showMessage(otpMessage, `⚠️ ${err.message}`, 'error');
