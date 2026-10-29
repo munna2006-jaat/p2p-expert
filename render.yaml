@@ -7,7 +7,7 @@ services:
     startCommand: npm start
     envVars:
       - key: APP_NAME
-        value: p2p expert
+        value: p2p
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
