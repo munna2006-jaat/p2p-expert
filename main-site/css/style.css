@@ -390,7 +390,7 @@ body {
   height: 100%;
   background: linear-gradient(90deg, #38bdf8 0%, #10b981 100%);
   border-radius: 9999px;
-  animation: fillProgress 2s linear forwards;
+  animation: fillProgress 3s linear forwards;
 }
 
 @keyframes fillProgress {
@@ -666,3 +666,562 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ========================================================
+   USDT DEPOSIT / PAYMENT PORTAL STYLING
+   ======================================================== */
+.deposit-view {
+  padding: 16px 20px;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.deposit-header-card {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.crypto-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #26a17b 0%, #10b981 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.25);
+}
+
+.crypto-icon-badge .tether-symbol {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.deposit-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.deposit-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.deposit-amount-box {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.deposit-amount-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.deposit-amount-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.deposit-amount-number .usdt-tag {
+  font-size: 16px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.deposit-refundable-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #047857;
+  background: #ecfdf5;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+/* Network Selector Tabs */
+.network-selector-container {
+  margin-bottom: 14px;
+}
+
+.selector-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  display: block;
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.network-tabs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.network-tab-btn {
+  background: #ffffff;
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.network-tab-btn:hover {
+  border-color: #cbd5e1;
+}
+
+.network-tab-btn.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.network-tab-btn .tab-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.network-tab-btn.active .tab-radio {
+  border-color: #2563eb;
+}
+
+.network-tab-btn.active .tab-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.network-tab-btn .tab-text strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.network-tab-btn .tab-text small {
+  font-size: 10px;
+  color: #64748b;
+}
+
+/* QR Code Card */
+.qr-container-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.qr-image-wrapper {
+  width: 190px;
+  height: 190px;
+  margin: 0 auto 8px;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid #e2e8f0;
+}
+
+.qr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.qr-loading {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+}
+
+.qr-scan-hint {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+  font-weight: 500;
+}
+
+/* Wallet Address Section */
+.wallet-address-section {
+  margin-bottom: 12px;
+}
+
+.wallet-label-row {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.wallet-pill-container {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.wallet-address-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+  line-height: 1.4;
+  user-select: all;
+}
+
+.btn-copy-address {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--pill-radius);
+  background: #ffffff;
+  border: 1.5px solid #2563eb;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-address:hover {
+  background: #eff6ff;
+}
+
+/* Network Alert Warning Box */
+.network-alert-box {
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: #92400e;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+/* ========================================================
+   VERIFICATION & RADAR SCANNER STYLING
+   ======================================================== */
+.verif-view {
+  padding: 24px 20px;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.verif-state-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px 20px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.radar-scanner-box {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid #3b82f6;
+  opacity: 0;
+  animation: radarPulse 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.ring-1 { width: 40px; height: 40px; animation-delay: 0s; }
+.ring-2 { width: 75px; height: 75px; animation-delay: 0.8s; }
+.ring-3 { width: 110px; height: 110px; animation-delay: 1.6s; }
+
+@keyframes radarPulse {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(1.1); opacity: 0; }
+}
+
+.radar-center-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #eff6ff;
+  border: 2px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.verif-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.verif-subtitle {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.verif-details-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 12px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row span {
+  color: #64748b;
+}
+
+.status-pill-pending {
+  background: #fef3c7;
+  color: #b45309;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.timer-mono {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.verif-notice-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: liveBlink 1.2s infinite;
+}
+
+@keyframes liveBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+}
+
+/* ========================================================
+   FLASH USDT ALERT STYLING (MATCHES EXACT USER SPECIFICATION)
+   ======================================================== */
+.flash-alert-card {
+  border: 2px solid #fecaca;
+  background: #fff5f5;
+  animation: flashShake 0.5s ease;
+}
+
+@keyframes flashShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.flash-icon-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #fee2e2;
+  border: 3px solid #ef4444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.flash-alert-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #b91c1c;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+
+.flash-warning-pill {
+  display: inline-block;
+  background: #dc2626;
+  color: #ffffff;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.flash-description {
+  font-size: 13px;
+  color: #450a0a;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.flash-help-box {
+  background: #ffffff;
+  border: 1px dashed #f87171;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  color: #7f1d1d;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+/* Approved Card */
+.approved-card {
+  border: 2px solid #bbf7d0;
+  background: #f0fdf4;
+}
+
+.approved-icon-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #dcfce7;
+  border: 3px solid #16a34a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 0 20px rgba(22, 163, 74, 0.3);
+}
+
+.approved-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #15803d;
+  margin-bottom: 8px;
+}
+
+.approved-description {
+  font-size: 13px;
+  color: #166534;
+  line-height: 1.5;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 100;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.btn-outline {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--pill-radius);
+  background: transparent;
+  border: 1.5px solid #cbd5e1;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: #f1f5f9;
+}
+

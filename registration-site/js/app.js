@@ -41,8 +41,11 @@
   const toast = document.getElementById('toast');
 
   // Set initial links
-  if (nextToMainBtn) nextToMainBtn.href = CONFIG.mainSiteUrl;
-  if (mainSiteDisplayUrl) mainSiteDisplayUrl.textContent = CONFIG.mainSiteUrl;
+  const initialMainUrl = (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
+    ? (CONFIG.mainSiteUrl || window.location.origin)
+    : (CONFIG.mainSiteUrl || 'http://localhost:3000');
+  if (nextToMainBtn) nextToMainBtn.href = initialMainUrl;
+  if (mainSiteDisplayUrl) mainSiteDisplayUrl.textContent = initialMainUrl;
 
   // ---------------- UI HELPERS ----------------
   function showStep(stepElement) {
@@ -310,8 +313,16 @@
       }
 
       // Success! Step 3
-      const mainUrl = data.mainSiteUrl || CONFIG.mainSiteUrl;
-      const targetUrlWithEmail = `${mainUrl}?email=${encodeURIComponent(currentEmail)}`;
+      let mainUrl = data.mainSiteUrl;
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        if (!mainUrl || mainUrl.includes('localhost') || mainUrl.includes('127.0.0.1')) {
+          mainUrl = CONFIG.mainSiteUrl || window.location.origin;
+        }
+      }
+      if (!mainUrl) mainUrl = window.location.origin;
+
+      const cleanBase = mainUrl.endsWith('/') ? mainUrl : `${mainUrl}/`;
+      const targetUrlWithEmail = `${cleanBase}?email=${encodeURIComponent(currentEmail)}`;
 
       successVerifiedEmail.textContent = currentEmail;
       mainSiteDisplayUrl.textContent = mainUrl;
