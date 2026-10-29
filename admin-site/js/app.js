@@ -257,6 +257,9 @@
           <button type="button" class="btn-reject-flash" data-id="${dep.id}">
             ❌ Cancel (Mark as Flash USDT)
           </button>
+          <button type="button" class="btn-sm-clear" onclick="deleteDeposit('${dep.id}')" title="Delete deposit record">
+            🗑️ Delete
+          </button>
           ${dep.status === 'rejected' ? `<span style="font-size: 12px; color: #f87171; font-weight: 700;">User sees: "Your USDT is Flash"</span>` : ''}
         </div>
       `;
@@ -557,12 +560,46 @@
         <td><strong>${escapeHtml(u.email)}</strong></td>
         <td><span style="background: #334155; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${escapeHtml(u.role)}</span></td>
         <td>${new Date(u.createdAt).toLocaleString()}</td>
-        <td><span style="color: #34d399; font-weight: 700;">Active 🟢</span></td>
+        <td>
+          <button type="button" class="btn-sm-clear" onclick="deleteUser('${encodeURIComponent(u.email)}')" title="Delete trader record">
+            🗑️ Delete
+          </button>
+        </td>
       </tr>
     `).join('');
   }
 
   btnRefreshUsers.addEventListener('click', loadUsers);
+
+  // Global Delete Handlers
+  window.deleteUser = async function(encodedEmail) {
+    const email = decodeURIComponent(encodedEmail);
+    if (!confirm(`Are you sure you want to delete trader ${email}?`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/user/${encodeURIComponent(email)}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Trader deleted successfully! 🗑️');
+        loadUsers();
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  window.deleteDeposit = async function(id) {
+    if (!confirm(`Delete deposit record ${id}?`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/deposit/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Deposit record deleted! 🗑️');
+        loadDeposits();
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  };
 
   // Helper
   function escapeHtml(str) {

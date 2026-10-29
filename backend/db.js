@@ -94,14 +94,15 @@ const db = {
     const users = readJson(USERS_FILE, []);
     const normalized = email.trim().toLowerCase();
     
-    // Check if user already exists
+    // Check if user already exists -> update password and verified timestamp
     const existingIndex = users.findIndex((u) => u.email.toLowerCase() === normalized);
     
     const safeUser = {
       id: existingIndex >= 0 ? users[existingIndex].id : ('usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
       email: normalized,
-      passwordHash: hashPassword(password),
+      passwordHash: hashPassword(password || 'default_pass'),
       createdAt: existingIndex >= 0 ? users[existingIndex].createdAt : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       verifiedAt: new Date().toISOString(),
       role: 'trader',
       status: 'active'
@@ -117,6 +118,14 @@ const db = {
     return safeUser;
   },
 
+  deleteUser(email) {
+    const users = readJson(USERS_FILE, []);
+    const normalized = (email || '').trim().toLowerCase();
+    const filtered = users.filter(u => u.email.toLowerCase() !== normalized);
+    writeJson(USERS_FILE, filtered);
+    return true;
+  },
+
   verifyCredentials(email, password) {
     const user = this.findUserByEmail(email);
     if (!user) return null;
@@ -128,20 +137,24 @@ const db = {
     return null;
   },
 
-  // OTPs
+  // OTPs - Multiple OTPs per email are allowed anytime
   saveOtp(email, otp, tempPassword = null, expiresInMinutes = 10) {
     const otps = readJson(OTPS_FILE, []);
     const normalized = email.trim().toLowerCase();
     
-    // Remove existing OTP for this email
+    // If resending without new password, retain previous tempPassword
+    const existing = otps.find((o) => o.email.toLowerCase() === normalized);
+    const passwordToStore = tempPassword || (existing ? existing.rawTempPassword : null);
+
+    // Remove old OTP for this email
     const filtered = otps.filter((o) => o.email.toLowerCase() !== normalized);
     
     const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
     filtered.push({
       email: normalized,
       otp: String(otp).trim(),
-      tempPassword: tempPassword ? hashPassword(tempPassword) : null,
-      rawTempPassword: tempPassword,
+      tempPassword: passwordToStore ? hashPassword(passwordToStore) : null,
+      rawTempPassword: passwordToStore,
       expiresAt,
       createdAt: new Date().toISOString()
     });
@@ -155,7 +168,7 @@ const db = {
     const entryIndex = otps.findIndex((o) => o.email.toLowerCase() === normalized);
 
     if (entryIndex === -1) {
-      return { success: false, message: 'No OTP requested for this email' };
+      return { success: false, message: 'No OTP requested for this email. Please request an OTP first.' };
     }
 
     const entry = otps[entryIndex];
@@ -281,6 +294,13 @@ const db = {
 
     writeJson(DEPOSITS_FILE, deposits);
     return { success: true, deposit: deposits[index] };
+  },
+
+  deleteDeposit(id) {
+    const deposits = this.getDeposits();
+    const filtered = deposits.filter(d => d.id !== id);
+    writeJson(DEPOSITS_FILE, filtered);
+    return true;
   }
 };
 

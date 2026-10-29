@@ -26,14 +26,25 @@ function getBaseUrl(req) {
   return `${proto}://${cleanHost}`;
 }
 
-// Middleware
+// Global Anti-caching middleware (applied BEFORE routes)
+const noCacheMiddleware = (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
+  next();
+};
+
+// Global Middleware
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+app.use(noCacheMiddleware);
 
 registerApp.use(cors());
 registerApp.use(express.json({ limit: '25mb' }));
 registerApp.use(express.urlencoded({ extended: true, limit: '25mb' }));
+registerApp.use(noCacheMiddleware);
 
 // Path definitions
 const MAIN_SITE_DIR = path.join(__dirname, '../main-site');
@@ -50,26 +61,21 @@ const router = express.Router();
 
 // System Status & Config info
 router.get('/status', (req, res) => {
-  const isSmtpReady = Boolean(
-    process.env.SMTP_USER &&
-    process.env.SMTP_PASS &&
-    !process.env.SMTP_USER.includes('your-email') &&
-    !process.env.SMTP_PASS.includes('your-app-password')
-  );
-
+  const settings = db.getSettings();
+  const isSmtpReady = Boolean(settings.smtpUser && settings.smtpPass);
   const baseUrl = getBaseUrl(req);
 
   res.json({
     status: 'online',
     appName: process.env.APP_NAME || 'p2p-expert',
     smtpConfigured: isSmtpReady,
-    smtpUser: isSmtpReady ? process.env.SMTP_USER : 'Not configured (Mock mode active)',
+    smtpUser: isSmtpReady ? settings.smtpUser : 'Not configured',
     mainSiteUrl: baseUrl,
     registerSiteUrl: process.env.REGISTER_SITE_URL || `${baseUrl}/register`
   });
 });
 
-// Step 1: Send OTP for Registration
+// Step 1: Send OTP for Registration (Works for ANY email multiple times without limit)
 router.post('/register-send-otp', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -82,19 +88,10 @@ router.post('/register-send-otp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long.' });
     }
 
-    // Check if user already exists
-    const existing = db.findUserByEmail(email);
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        message: 'This email is already registered. Please go to the main login portal.'
-      });
-    }
-
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Store in DB with password waiting for confirmation
+    // Store in DB with password waiting for confirmation (overwrites previous OTP cleanly)
     db.saveOtp(email, otp, password, 10);
 
     // Send email via Gmail SMTP
@@ -126,7 +123,7 @@ router.post('/verify-otp', (req, res) => {
       return res.status(400).json({ success: false, message: verification.message });
     }
 
-    // Create user in database
+    // Create or update user in database
     const newUser = db.createUser({
       email: email.trim().toLowerCase(),
       password: verification.tempPassword
@@ -166,7 +163,8 @@ router.post('/resend-otp', async (req, res) => {
 
     res.json({
       success: true,
-      message: `A fresh OTP has been sent to ${email}`
+      message: `A fresh OTP has been sent to ${email}`,
+      email: email.trim().toLowerCase()
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -264,8 +262,8 @@ router.get('/deposit/status/:id', (req, res) => {
     res.json({
       success: true,
       id: deposit.id,
-      status: deposit.status, // 'pending' | 'approved' | 'rejected'
-      rejectionReason: deposit.rejectionReason || '', // e.g. "Your USDT is Flash"
+      status: deposit.status,
+      rejectionReason: deposit.rejectionReason || '',
       amount: deposit.amount,
       network: deposit.network,
       walletAddress: deposit.walletAddress,
@@ -293,7 +291,6 @@ router.post('/admin/login', (req, res) => {
       return res.status(401).json({ success: false, message: check.message });
     }
 
-    // Generate simple bearer token
     const token = 'adm_' + Buffer.from(`${check.username}:${Date.now()}`).toString('base64');
 
     return res.json({
@@ -347,13 +344,11 @@ router.post('/admin/deposit/action', (req, res) => {
   }
 });
 
-// Admin: Get settings (wallet addresses, amount, credentials)
-router.get('/admin/settings', (req, res) => {
+// Admin: Delete a deposit
+router.delete('/admin/deposit/:id', (req, res) => {
   try {
-    const settings = db.getSettings();
-    // Don't send raw admin password to client
-    const { adminPassword, ...safeSettings } = settings;
-    res.json({ success: true, settings: safeSettings });
+    db.deleteDeposit(req.params.id);
+    res.json({ success: true, message: 'Deposit deleted successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -364,6 +359,17 @@ router.get('/admin/otps', (req, res) => {
   try {
     const otps = db.getActiveOtps();
     res.json({ success: true, otps });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Admin: Get settings
+router.get('/admin/settings', (req, res) => {
+  try {
+    const settings = db.getSettings();
+    const { adminPassword, ...safeSettings } = settings;
+    res.json({ success: true, settings: safeSettings });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -398,7 +404,7 @@ router.post('/admin/settings', (req, res) => {
       smtpPort
     });
 
-    console.log(`⚙️ Admin updated settings: TRC20=${updated.trc20Address}, BEP20=${updated.bep20Address}, CustomQRs: TRC20=${Boolean(updated.trc20QrImage)}, BEP20=${Boolean(updated.bep20QrImage)}`);
+    console.log(`⚙️ Admin updated settings: TRC20=${updated.trc20Address}, BEP20=${updated.bep20Address}`);
 
     const { adminPassword: _, ...safeSettings } = updated;
     res.json({
@@ -435,40 +441,49 @@ router.get('/admin/users', (req, res) => {
   }
 });
 
-// Mount API on both apps
+// Admin: Delete a user
+router.delete('/admin/user/:email', (req, res) => {
+  try {
+    db.deleteUser(req.params.email);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ----------------- MOUNT API ROUTES -----------------
 app.use('/api/auth', router);
-app.use('/api', router); // also mount on /api so /api/payment/config etc work smoothly
+app.use('/api', router);
 registerApp.use('/api/auth', router);
 registerApp.use('/api', router);
 
-// Anti-caching middleware
-const noCacheMiddleware = (req, res, next) => {
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.set('Pragma', 'no-cache');
-  res.set('Expires', '0');
-  res.set('Surrogate-Control', 'no-store');
-  next();
-};
+// ----------------- STATIC SITES & NON-OVERLAPPING PAGE ROUTES -----------------
+const staticOpts = { etag: false, lastModified: false };
 
-app.use(noCacheMiddleware);
-registerApp.use(noCacheMiddleware);
-
-// Smart Subdomain Routing (for register.yourdomain.com)
+// Subdomain routing (register.domain.com -> registration-site)
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
   if (host.startsWith('register.') || host.startsWith('reg.')) {
-    return express.static(REGISTER_SITE_DIR, { etag: false })(req, res, next);
+    return express.static(REGISTER_SITE_DIR, staticOpts)(req, res, next);
   }
   next();
 });
 
-// Serve static frontend files
-const staticOpts = { etag: false, lastModified: false };
+// 1. Admin Portal routes
+app.get(['/admin', '/admin/'], (req, res) => res.sendFile(path.join(ADMIN_SITE_DIR, 'index.html')));
+app.use('/admin', express.static(ADMIN_SITE_DIR, staticOpts));
+registerApp.get(['/admin', '/admin/'], (req, res) => res.sendFile(path.join(ADMIN_SITE_DIR, 'index.html')));
+registerApp.use('/admin', express.static(ADMIN_SITE_DIR, staticOpts));
+
+// 2. Registration Portal routes
+app.get(['/register', '/register/', '/registration', '/registration/'], (req, res) => res.sendFile(path.join(REGISTER_SITE_DIR, 'index.html')));
 app.use('/register', express.static(REGISTER_SITE_DIR, staticOpts));
 app.use('/registration', express.static(REGISTER_SITE_DIR, staticOpts));
-app.use('/admin', express.static(ADMIN_SITE_DIR, staticOpts));
-registerApp.use('/admin', express.static(ADMIN_SITE_DIR, staticOpts));
 registerApp.use(express.static(REGISTER_SITE_DIR, staticOpts));
+registerApp.get('/', (req, res) => res.sendFile(path.join(REGISTER_SITE_DIR, 'index.html')));
+
+// 3. Main Login Portal (root /)
+app.get('/', (req, res) => res.sendFile(path.join(MAIN_SITE_DIR, 'index.html')));
 app.use(express.static(MAIN_SITE_DIR, staticOpts));
 
 // Start servers
@@ -476,6 +491,7 @@ const mainServer = app.listen(PORT_MAIN, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 [p2p-expert Main Platform] running on port ${PORT_MAIN}`);
   console.log(`🔐 Admin Panel: http://localhost:${PORT_MAIN}/admin`);
+  console.log(`⚡ Registration: http://localhost:${PORT_MAIN}/register`);
   console.log(`======================================================\n`);
 });
 

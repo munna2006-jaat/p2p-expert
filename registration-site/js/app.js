@@ -233,7 +233,7 @@
 
   // Resend Countdown Timer
   function startResendCountdown() {
-    remainingSeconds = 60;
+    remainingSeconds = 30;
     resendOtpBtn.disabled = true;
     resendCountdown.textContent = `${remainingSeconds}s`;
 
