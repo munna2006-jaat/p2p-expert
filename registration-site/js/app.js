@@ -137,12 +137,17 @@
 
     setButtonLoading(submitRegisterBtn, true, 'Send OTP Code');
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const response = await fetch(`${CONFIG.apiUrl}/register-send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const data = await response.json();
 
@@ -157,12 +162,20 @@
       showStep(stepOtp);
       startResendCountdown();
 
+      if (data.fallbackOtp) {
+        showMessage(otpMessage, `💡 Notice (Render Free Tier blocks port 465):<br>Your Verification Code is: <strong style="font-size:16px; letter-spacing:2px;">${data.fallbackOtp}</strong>`, 'info');
+      } else {
+        hideMessage(otpMessage);
+      }
+
       // Clear and focus first OTP input
       otpDigits.forEach(input => (input.value = ''));
       setTimeout(() => otpDigits[0].focus(), 150);
 
     } catch (err) {
-      showMessage(regMessage, `⚠️ ${err.message}`);
+      clearTimeout(timeoutId);
+      const msg = err.name === 'AbortError' ? 'Request timed out. Please check your network and try again.' : err.message;
+      showMessage(regMessage, `⚠️ ${msg}`);
     } finally {
       setButtonLoading(submitRegisterBtn, false, 'Send OTP Code');
     }
@@ -258,7 +271,11 @@
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.message);
 
-      showMessage(otpMessage, '✅ Fresh verification code sent to your email.', 'success');
+      if (data.fallbackOtp) {
+        showMessage(otpMessage, `💡 Notice (Render Free Tier blocks port 465):<br>Your Fresh Code is: <strong style="font-size:16px; letter-spacing:2px;">${data.fallbackOtp}</strong>`, 'info');
+      } else {
+        showMessage(otpMessage, '✅ Fresh verification code sent to your email.', 'success');
+      }
       startResendCountdown();
     } catch (err) {
       showMessage(otpMessage, `⚠️ ${err.message}`, 'error');

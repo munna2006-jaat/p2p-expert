@@ -24,7 +24,11 @@ function createTransporter() {
     },
     tls: {
       rejectUnauthorized: false
-    }
+    },
+    // Set 4 second timeout so Render's firewall never hangs requests indefinitely
+    connectionTimeout: 4000,
+    greetingTimeout: 4000,
+    socketTimeout: 4000
   });
 }
 

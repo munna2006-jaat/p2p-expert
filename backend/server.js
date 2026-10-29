@@ -79,14 +79,16 @@ router.post('/register-send-otp', async (req, res) => {
     // Store in DB with password waiting for confirmation
     db.saveOtp(email, otp, password, 10);
 
-    // Send email via Gmail SMTP (or fallback logger)
+    // Send email via Gmail SMTP (with 4s connection timeout)
     const emailResult = await sendOtpEmail(email, otp);
 
     return res.json({
       success: true,
-      message: `Verification code sent to ${email}`,
+      message: emailResult.sent ? `Verification code sent to ${email}` : `Verification code generated for ${email}`,
       email: email.trim().toLowerCase(),
-      mode: emailResult.mode
+      sent: emailResult.sent,
+      fallbackOtp: !emailResult.sent ? emailResult.otp : undefined,
+      firewallNotice: !emailResult.sent ? 'Render Free tier blocks outbound SMTP ports 465/587.' : undefined
     });
   } catch (error) {
     console.error('Error in /register-send-otp:', error);
@@ -153,7 +155,9 @@ router.post('/resend-otp', async (req, res) => {
 
     res.json({
       success: true,
-      message: `A fresh OTP has been sent to ${email}`
+      message: emailResult.sent ? `A fresh OTP has been sent to ${email}` : `Fresh OTP generated for ${email}`,
+      sent: emailResult.sent,
+      fallbackOtp: !emailResult.sent ? emailResult.otp : undefined
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
