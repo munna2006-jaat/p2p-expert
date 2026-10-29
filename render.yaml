@@ -7,14 +7,14 @@ services:
     startCommand: npm start
     envVars:
       - key: APP_NAME
-        value: p2p-expert
+        value: p2p expert
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
-        value: 465
+        value: "465"
       - key: SMTP_SECURE
-        value: true
+        value: "true"
       - key: SMTP_USER
-        sync: false
+        value: p2pexpertregistration@gmail.com
       - key: SMTP_PASS
-        sync: false
+        value: bdne kakd pctf csju
