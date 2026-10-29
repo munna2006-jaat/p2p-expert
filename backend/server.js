@@ -236,12 +236,19 @@ const mainServer = app.listen(PORT_MAIN, () => {
 
 let registerServer;
 if (PORT_REGISTER !== PORT_MAIN) {
-  registerServer = registerApp.listen(PORT_REGISTER, () => {
-    console.log(`\n======================================================`);
-    console.log(`⚡ [p2p-expert Registration Website (Subdomain)] running on:`);
-    console.log(`👉 http://localhost:${PORT_REGISTER}`);
-    console.log(`======================================================\n`);
-  });
+  try {
+    registerServer = registerApp.listen(PORT_REGISTER, () => {
+      console.log(`\n======================================================`);
+      console.log(`⚡ [p2p-expert Registration Website (Subdomain)] running on:`);
+      console.log(`👉 http://localhost:${PORT_REGISTER}`);
+      console.log(`======================================================\n`);
+    });
+    registerServer.on('error', (err) => {
+      console.log('ℹ️ Cloud environment single-port active: registration site served via /register on main port.');
+    });
+  } catch (err) {
+    console.log('ℹ️ Registration site served via main port.');
+  }
 }
 
 // Graceful shutdown

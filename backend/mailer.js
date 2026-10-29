@@ -25,10 +25,10 @@ function createTransporter() {
     tls: {
       rejectUnauthorized: false
     },
-    // Set 4 second timeout so Render's firewall never hangs requests indefinitely
-    connectionTimeout: 4000,
-    greetingTimeout: 4000,
-    socketTimeout: 4000
+    // Set 10 second timeout for reliable cloud network handshakes
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000
   });
 }
 
